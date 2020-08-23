@@ -14,8 +14,8 @@ namespace MoreArtifacts {
 
         public override string Name => "Artifact of the Congregate";
         public override string Description => "Monsters can combine to form larger, stronger monsters.";
-        public override Sprite IconSelectedSprite => MoreArtifacts.CreateSprite(Properties.Resources.congregate_selected, Color.magenta);
-        public override Sprite IconDeselectedSprite => MoreArtifacts.CreateSprite(Properties.Resources.congregate_deselected, Color.gray);
+        public override Sprite IconSelectedSprite => CreateSprite(Properties.Resources.congregate_selected, Color.magenta);
+        public override Sprite IconDeselectedSprite => CreateSprite(Properties.Resources.congregate_deselected, Color.gray);
 
     }
 
@@ -27,7 +27,6 @@ namespace MoreArtifacts {
             get { return CongregateArtifact.Instance.ArtifactDef; }
         }
 
-        //[SystemInitializer(new Type[] { typeof(ArtifactCatalog) })]
         public static void Init() {
             RunArtifactManager.onArtifactEnabledGlobal += OnArtifactEnabled;
             RunArtifactManager.onArtifactDisabledGlobal += OnArtifactDisabled;

@@ -13,8 +13,8 @@ namespace MoreArtifacts {
 
         public override string Name => "Artifact of the Conglomerate";
         public override string Description => "A random monster on the stage will take damage instead of the one that is damaged.";
-        public override Sprite IconSelectedSprite => MoreArtifacts.CreateSprite(Properties.Resources.congregate_selected, Color.magenta);
-        public override Sprite IconDeselectedSprite => MoreArtifacts.CreateSprite(Properties.Resources.congregate_deselected, Color.gray);
+        public override Sprite IconSelectedSprite => CreateSprite(null, Color.magenta);
+        public override Sprite IconDeselectedSprite => CreateSprite(null, Color.gray);
 
     }
 
@@ -29,11 +29,14 @@ namespace MoreArtifacts {
         private static Dictionary<TeamIndex, List<CharacterBody>> bodies;
         internal static Xoroshiro128Plus random;
 
+        internal static List<DamageInfo> seen;
+
         public static void Init() {
             bodies = new Dictionary<TeamIndex, List<CharacterBody>>();
             foreach(TeamIndex index in Enum.GetValues(typeof(TeamIndex))) {
                 bodies.Add(index, new List<CharacterBody>());
             }
+            seen = new List<DamageInfo>();
 
             RunArtifactManager.onArtifactEnabledGlobal += OnArtifactEnabled;
             RunArtifactManager.onArtifactDisabledGlobal += OnArtifactDisabled;
@@ -47,9 +50,10 @@ namespace MoreArtifacts {
             // do things
             Run.onRunStartGlobal += SetRandom;
             CharacterBody.onBodyStartGlobal += AddToList;
-            Stage.onServerStageComplete += EmptyLists;
+            Stage.onServerStageBegin += EmptyLists;
             GlobalEventManager.onCharacterDeathGlobal += RemoveFromList;
-            GlobalEventManager.onServerDamageDealt += JumbleDamage; // USE MMHOOK if nothing else works
+            // MMHook :)
+            On.RoR2.HealthComponent.TakeDamage += JumbleDamage;
         }
 
         private static void OnArtifactDisabled(RunArtifactManager man, ArtifactDef artifactDef) {
@@ -60,9 +64,27 @@ namespace MoreArtifacts {
             // undo things
             Run.onRunStartGlobal -= SetRandom;
             CharacterBody.onBodyStartGlobal -= AddToList;
-            Stage.onServerStageComplete -= EmptyLists;
+            Stage.onServerStageBegin -= EmptyLists;
             GlobalEventManager.onCharacterDeathGlobal -= RemoveFromList;
-            GlobalEventManager.onServerDamageDealt -= JumbleDamage;
+
+            On.RoR2.HealthComponent.TakeDamage -= JumbleDamage;
+        }
+
+        private static void JumbleDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
+            if(seen.Contains(damageInfo)) {
+                seen.Remove(damageInfo);
+                orig(self, damageInfo);
+            } else {
+                // make sure the next does not jumble the damage
+                seen.Add(damageInfo);
+                // redirect victim
+                var list = bodies[self.body?.teamComponent.teamIndex ?? TeamIndex.None];
+                if(list.Count > 0) {
+                    // one would assume that there would obviously be an element in the list but sometimes there isnt 
+                    //  (which Xoroshiro does not like)
+                    random.NextElementUniform(list).healthComponent.TakeDamage(damageInfo);
+                }
+            }
         }
 
         private static void SetRandom(Run run) {
@@ -77,23 +99,12 @@ namespace MoreArtifacts {
             foreach(var list in bodies.Values) {
                 list.Clear();
             }
+
+            seen.Clear();
         }
 
         private static void RemoveFromList(DamageReport report) {
             bodies[report.victimTeamIndex].Remove(report.victimBody);
-        }
-
-        private static void JumbleDamage(DamageReport report) {
-            // heal damage from victim unless they are dead
-            if(!report.victim.alive) {
-                return;
-            }
-
-            // heal original victim
-            report.victim.Heal(report.damageDealt, default);
-
-            // deal damage to another random thing on the same team
-            random.NextElementUniform(bodies[report.victimTeamIndex]).healthComponent.TakeDamage(report.damageInfo);
         }
     }
 }
