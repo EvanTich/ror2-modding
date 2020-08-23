@@ -11,7 +11,7 @@ namespace CommandChanges {
     public class CommandChanges : BaseUnityPlugin {
         public const string ModGUID = "com.ugff.commandchanges";
         public const string ModName = "Command Changes";
-        public const string ModVersion = "1.1.0";
+        public const string ModVersion = "1.1.1";
 
         public void Awake() {
             Harmony.CreateAndPatchAll(typeof(CommandChanges));
@@ -21,7 +21,7 @@ namespace CommandChanges {
         [HarmonyPrefix]
         static bool OnGenerateInteractableCardSelection(SceneDirector sceneDirector, DirectorCardCategorySelection dccs) {
             dccs.RemoveCardsThatFailFilter(card => {
-                UnityEngine.GameObject obj = card.spawnCard.prefab;
+                var obj = card.spawnCard.prefab;
                 return !(
                     obj.GetComponent<ShopTerminalBehavior>() && obj.name != "ShrineCleanse"
                     || obj.GetComponent<MultiShopController>() 

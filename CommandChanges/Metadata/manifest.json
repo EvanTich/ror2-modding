@@ -1,0 +1,9 @@
+{
+    "name": "CommandChanges",
+    "version_number": "1.1.1",
+    "website_url": "https://github.com/EvanTich/ror2-modding/tree/master/CommandChanges",
+    "description": "Changes the Command artifact to allow cleansing pools to spawn.",
+    "dependencies": [
+        "bbepis-BepInExPack-5.3.1"
+    ]
+}
