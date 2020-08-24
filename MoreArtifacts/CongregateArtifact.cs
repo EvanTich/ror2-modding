@@ -68,7 +68,9 @@ namespace MoreArtifacts {
         public static float CombineScale = 1.1f;
         public static int PearlsPerCount = 5;
 
-        private static Dictionary<string, List<CongregateController>> dict = new Dictionary<string, List<CongregateController>>();
+        private static readonly List<CombatSquad> squads = InstanceTracker.GetInstancesList<CombatSquad>();
+
+        private static readonly Dictionary<string, List<CongregateController>> dict = new Dictionary<string, List<CongregateController>>();
 
         private CharacterBody body;
         private DeathRewards rewards;
@@ -101,17 +103,28 @@ namespace MoreArtifacts {
         public void FixedUpdate() {
             if(body == null || isCombining || !dict.ContainsKey(body.baseNameToken)) return;
 
+            if(body.gameObject == null) {
+                MoreArtifacts.Logger.LogInfo("deleting bad gameobject body");
+                dict[body.baseNameToken].Remove(this);
+                return;
+            }
+
             var list = dict[body.baseNameToken];
             for(int i = 0; i < list.Count; i++) {
                 if(list[i] == this || list[i].isCombining) continue;
 
                 // TODO: check speed, ensure quality
-                if(body.mainHurtBox.collider.bounds.Intersects(list[i].body.mainHurtBox.collider.bounds)) {
-                    isCombining = true;
-                    list[i].isCombining = true;
-                    Combine(list[i]);
-                    i--;
+                try {
+                    if(body.mainHurtBox.collider.bounds.Intersects(list[i].body.mainHurtBox.collider.bounds)) {
+                        isCombining = true;
+                        list[i].isCombining = true;
+                        Combine(list[i]);
+                        list.RemoveAt(i--);
+                    }
+                } catch(NullReferenceException) {
+                    // FIXME: remove the offender
                 }
+                    
             }
         }
 
@@ -124,7 +137,8 @@ namespace MoreArtifacts {
             if(body.inventory != null) {
                 // Irradiant Pearls are nice because they give 10% more of everything
                 body.inventory.ResetItem(ItemIndex.ShinyPearl);
-                body.inventory.GiveItem(ItemIndex.ShinyPearl, count * PearlsPerCount - PearlsPerCount);
+                int num = (count * PearlsPerCount - PearlsPerCount) * (body.isBoss || body.isChampion ? 2 : 1);
+                body.inventory.GiveItem(ItemIndex.ShinyPearl, num);
                 body.RecalculateStats();
 
                 // kill experience, gold gain, and health/shields
@@ -144,8 +158,7 @@ namespace MoreArtifacts {
                 }
             }
 
-            dict[other.body.baseNameToken].Remove(other);
-            Destroy(other.gameObject); // FIXME? find a better way of doing this
+            other.TrueDestroy();
             isCombining = false;
         }
 
@@ -156,6 +169,17 @@ namespace MoreArtifacts {
             }
 
             new ScaleMessage { body = body, scale = scale }.Send(R2API.Networking.NetworkDestination.Clients);
+        }
+
+        private void TrueDestroy() {
+            // make sure this monster is not part of a CombatSquad and remove it if it is
+            foreach(var squad in squads) {
+                if(squad.ContainsMember(body.master)) {
+                    R2API.Utils.Reflection.InvokeMethod(squad, "RemoveMember", body.master);
+                }
+            }
+
+            Destroy(gameObject);
         }
     }
 
