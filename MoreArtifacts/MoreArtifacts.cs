@@ -13,7 +13,7 @@ namespace MoreArtifacts {
     public class MoreArtifacts : BaseUnityPlugin {
         public const string ModGUID = "com.ugff.moreartifacts";
         public const string ModName = "More Artifacts";
-        public const string ModVersion = "1.1.3";
+        public const string ModVersion = "1.2.0";
 
 
         public static new BepInEx.Logging.ManualLogSource Logger { get; private set; }

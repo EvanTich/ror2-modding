@@ -12,7 +12,7 @@ namespace MoreArtifacts {
     public class ConglomerateArtifact : NewArtifact<ConglomerateArtifact> {
 
         public override string Name => "Artifact of the Conglomerate";
-        public override string Description => "A random monster on the stage will take damage instead of the one that is damaged.";
+        public override string Description => "A random character on the same team will take damage instead of the one that is damaged.";
         public override Sprite IconSelectedSprite => CreateSprite(Properties.Resources.conglomerate_selected, Color.magenta);
         public override Sprite IconDeselectedSprite => CreateSprite(Properties.Resources.conglomerate_deselected, Color.gray);
 
@@ -26,7 +26,7 @@ namespace MoreArtifacts {
             get { return ConglomerateArtifact.Instance.ArtifactDef; }
         }
 
-        //private static string[] ignoreList;
+        //private static string[] ignoreList; // maybe? :)
 
         private static System.Collections.ObjectModel.ReadOnlyCollection<TeamComponent>[] teamsList;
         internal static Xoroshiro128Plus random;
@@ -36,6 +36,7 @@ namespace MoreArtifacts {
             seen = new List<DamageInfo>();
 
             // loooong line
+            // may as well get the actual array instead of using TeamComponent.GetTeamMembers 3 times
             teamsList = R2API.Utils.Reflection
                 .GetFieldValue<System.Collections.ObjectModel.ReadOnlyCollection<TeamComponent>[]>(typeof(TeamComponent), "readonlyTeamsList");
 

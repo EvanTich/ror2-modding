@@ -66,7 +66,7 @@ namespace MoreArtifacts {
     public class CongregateController : NetworkBehaviour {
 
         public static float CombineScale = 1.1f;
-        public static int PearlsPerCount = 3;
+        public static int PearlsPerCount = 5;
 
         private static Dictionary<string, List<CongregateController>> dict = new Dictionary<string, List<CongregateController>>();
 
