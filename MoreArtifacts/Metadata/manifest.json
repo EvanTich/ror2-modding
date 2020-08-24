@@ -2,7 +2,7 @@
     "name": "MoreArtifacts",
     "version_number": "1.2.0",
     "website_url": "https://github.com/EvanTich/ror2-modding/tree/master/MoreArtifacts",
-    "description": "Adds two more artifacts to the game!",
+    "description": "Adds two more artifacts to the game! Works in multiplayer.",
     "dependencies": [
         "bbepis-BepInExPack-5.3.1",
         "tristanmcpherson-R2API-2.5.6"

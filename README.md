@@ -7,7 +7,7 @@ Changes the Command artifact to allow cleansing pools to spawn. I used [Harmony]
 
 
 ## MoreArtifacts
-Adds more artifacts to the game! There will be more artifacts when my friends or I come up with more ideas.
+Adds more artifacts to the game! Everyone must have the mod in multiplayer. There will be more artifacts when my friends or I come up with more ideas.
 ### Artifacts:
 - Artifact of the Congregate:\
     Monsters can combine to form larger, stronger monsters. 
