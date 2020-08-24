@@ -103,7 +103,7 @@ namespace MoreArtifacts {
         public void FixedUpdate() {
             if(body == null || isCombining || !dict.ContainsKey(body.baseNameToken)) return;
 
-            if(body.gameObject == null) {
+            if(body.masterObject == null) {
                 MoreArtifacts.Logger.LogInfo("deleting bad gameobject body");
                 dict[body.baseNameToken].Remove(this);
                 return;
@@ -119,12 +119,27 @@ namespace MoreArtifacts {
                         isCombining = true;
                         list[i].isCombining = true;
                         Combine(list[i]);
-                        list.RemoveAt(i--);
                     }
-                } catch(NullReferenceException) {
-                    // FIXME: remove the offender
+                } catch(NullReferenceException e) {
+                    // FIXME: remove the offender?
+                    MoreArtifacts.Logger.LogInfo("bad collider bounds");
+                    MoreArtifacts.Logger.LogError(e.Message);
+                    MoreArtifacts.Logger.LogError(e.StackTrace);
+                    try {
+                        body.mainHurtBox.collider.bounds.Equals(null);
+                    } catch(NullReferenceException) {
+                        MoreArtifacts.Logger.LogInfo($"bad local body bounds - isDestroyed: {body.masterObject == null}");
+                        list.Remove(this);
+                    }
+
+                    try {
+                        list[i].body.mainHurtBox.collider.bounds.Equals(null);
+                    } catch(NullReferenceException) {
+                        MoreArtifacts.Logger.LogInfo($"bad list body bounds - isDestroyed: {list[i].body.masterObject == null}");
+                        list.Remove(list[i]);
+                    }
                 }
-                    
+
             }
         }
 
@@ -172,6 +187,8 @@ namespace MoreArtifacts {
         }
 
         private void TrueDestroy() {
+            dict[body.baseNameToken].Remove(this);
+
             // make sure this monster is not part of a CombatSquad and remove it if it is
             foreach(var squad in squads) {
                 if(squad.ContainsMember(body.master)) {
