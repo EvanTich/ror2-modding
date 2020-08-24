@@ -1,10 +1,9 @@
 ## MoreArtifacts
 Adds more artifacts to the game! Everyone must have the mod in multiplayer. There will be more artifacts when my friends or I come up with more ideas.
 ### Artifacts:
-- Artifact of the Congregate:\
-    Monsters can combine to form larger, stronger monsters. 
-    Get them close to eachother and have fun (or not)!
-- Artifact of the Conglomerate:\
+- Artifact of the Congregate:
+    Monsters can combine to form larger, stronger monsters. Get them close to eachother and have fun (or not)!
+- Artifact of the Conglomerate:
     A random character on the same team will take damage instead of the one that is damaged.
 
 ## How to install
@@ -15,3 +14,8 @@ Use a mod manager OR...
 4. Put the dll in the plugins folder of BepInEx in your Risk of Rain 2 install folder.
 
 Enjoy!
+
+
+### Changelog
+- 1.2.1 Changed README.md
+- 1.2.0 Release

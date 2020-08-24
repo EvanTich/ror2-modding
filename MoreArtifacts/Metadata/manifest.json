@@ -1,6 +1,6 @@
 {
     "name": "MoreArtifacts",
-    "version_number": "1.2.0",
+    "version_number": "1.2.1",
     "website_url": "https://github.com/EvanTich/ror2-modding/tree/master/MoreArtifacts",
     "description": "Adds two more artifacts to the game! Works in multiplayer.",
     "dependencies": [

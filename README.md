@@ -2,18 +2,8 @@
 Hopefully interesing Risk of Rain 2 modding endeavors.
  
 # Mods
-## CommandChanges
-Changes the Command artifact to allow cleansing pools to spawn. I used [Harmony](https://github.com/BepInEx/HarmonyX/wiki) for this.
-
-
-## MoreArtifacts
-Adds more artifacts to the game! Everyone must have the mod in multiplayer. There will be more artifacts when my friends or I come up with more ideas.
-### Artifacts:
-- Artifact of the Congregate:\
-    Monsters can combine to form larger, stronger monsters. 
-    Get them close to eachother and have fun (or not)!
-- Artifact of the Conglomerate:\
-    A random character on the same team will take damage instead of the one that is damaged.
+- [CommandChanges](./CommandChanges/Metadata/README.md)
+- [MoreArtifacts](./MoreArtifacts/Metadata/README.md)
 
 ## How to install
 Use a mod manager OR...
