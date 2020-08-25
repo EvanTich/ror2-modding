@@ -13,10 +13,10 @@ namespace MoreArtifacts {
     public class MoreArtifacts : BaseUnityPlugin {
         public const string ModGUID = "com.ugff.moreartifacts";
         public const string ModName = "More Artifacts";
-        public const string ModVersion = "1.2.0";
+        public const string ModVersion = "1.2.3";
 
 
-        public static new BepInEx.Logging.ManualLogSource Logger { get; private set; }
+        internal static new BepInEx.Logging.ManualLogSource Logger { get; private set; }
 
         public static CongregateArtifact congregateArtifact;
         public static ConglomerateArtifact wholeArtifact;
@@ -26,10 +26,7 @@ namespace MoreArtifacts {
 
             NetworkingAPI.RegisterMessageType<ScaleMessage>();
 
-            CongregateArtifactManager.Init();
             congregateArtifact = new CongregateArtifact();
-
-            ConglomerateArtifactManager.Init();
             wholeArtifact = new ConglomerateArtifact();
         }
     }

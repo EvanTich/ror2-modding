@@ -8,23 +8,54 @@ namespace MoreArtifacts {
 
         public static T Instance { get; private set; }
 
-        // LATER:
+        // TODO LATER:
         // RoR2.ArtifactTrialMissionController
         // EntityStates.Missions.ArtifactWorld.TrialController.*
         // UnlockableDef / UnlockableCatalog
 
+        /// <summary>
+        /// In-game name of the artifact.
+        /// </summary>
         public abstract string Name { get; }
+
+        /// <summary>
+        /// In-game description of the artifact.
+        /// </summary>
         public abstract string Description { get; }
+
+        /// <summary>
+        /// In-game icon of the artifact when it is enabled.
+        /// </summary>
         public abstract Sprite IconSelectedSprite { get; }
+
+        /// <summary>
+        /// In-game icon of the artifact when it is disabled.
+        /// </summary>
+        /// <see cref="CreateSprite(byte[], Color)"/>
         public abstract Sprite IconDeselectedSprite { get; }
 
+        /// <summary>
+        /// The resulting artifact definition from this class.
+        /// </summary>
+        /// <see cref="CreateSprite(byte[], Color)"/>
         public ArtifactDef ArtifactDef { get; protected set; }
 
         public NewArtifact() {
+            if(Instance != null) {
+                throw new InvalidOperationException("Same artifact cannot be created more than once. Use the already existing Instance.");
+            }
+
             Instance = (T) this;
+            InitManager();
             InitArtifact();
         }
 
+        protected abstract void InitManager();
+        //public abstract void InitMission();
+
+        /// <summary>
+        /// Initializes the artifact def and adds it to the game's list of artifacts.
+        /// </summary>
         protected void InitArtifact() {
             ArtifactDef = ScriptableObject.CreateInstance<ArtifactDef>();
             ArtifactDef.nameToken = Name;
@@ -36,9 +67,13 @@ namespace MoreArtifacts {
             MoreArtifacts.Logger.LogInfo($"Initialized Artifact: {Name}");
         }
 
-
-        //public abstract void InitMission();
-
+        /// <summary>
+        /// An easy way to create a sprite from embedded resources.
+        /// </summary>
+        /// <see cref="https://github.com/risk-of-thunder/R2Wiki/wiki/Embedding-and-loading-resources-(The-sane-way)"/>
+        /// <param name="resourceBytes">Ensure your resource is a byte array before using this method.</param>
+        /// <param name="fallbackColor">Uses a color to fill the texture when there is a problem loading an image from the resource.</param>
+        /// <returns>A sprite to use with the artifact.</returns>
         public static Sprite CreateSprite(byte[] resourceBytes, Color fallbackColor) {
             // Create a temporary texture, then load the texture onto it.
             var tex = new Texture2D(32, 32, TextureFormat.RGBA32, false);

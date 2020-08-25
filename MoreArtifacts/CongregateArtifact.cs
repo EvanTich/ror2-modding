@@ -17,6 +17,9 @@ namespace MoreArtifacts {
         public override Sprite IconSelectedSprite => CreateSprite(Properties.Resources.congregate_selected, Color.magenta);
         public override Sprite IconDeselectedSprite => CreateSprite(Properties.Resources.congregate_deselected, Color.gray);
 
+        protected override void InitManager() {
+            CongregateArtifactManager.Init();
+        }
     }
 
     /// <summary>
