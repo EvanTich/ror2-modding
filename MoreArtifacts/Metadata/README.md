@@ -15,7 +15,10 @@ Use a mod manager OR...
 
 Enjoy!
 
+### Issues?
+Please notify me of any issues you may have with the mod through the Risk of Rain 2 Discord (Ugff) or Github.
 
 ### Changelog
+- 1.2.2 Fixed bugs with CombatSquad interactions and general fixes
 - 1.2.1 Changed README.md
 - 1.2.0 Release

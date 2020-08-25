@@ -38,7 +38,6 @@ namespace MoreArtifacts {
             }
 
             // do things
-            // add a MonoBehavior to check if two monsters of the same type are touching (body.mainHurtBox.collider.bounds)
             CharacterBody.onBodyStartGlobal += OnBodyStartGlobal;
         }
 
@@ -97,46 +96,42 @@ namespace MoreArtifacts {
         public void OnDisable() {
             if(dict.ContainsKey(body.baseNameToken)) {
                 dict[body.baseNameToken].Remove(this);
+                Destroy(this);
             }
         }
 
         public void FixedUpdate() {
             if(body == null || isCombining || !dict.ContainsKey(body.baseNameToken)) return;
 
-            if(body.masterObject == null) {
-                MoreArtifacts.Logger.LogInfo("deleting bad gameobject body");
-                dict[body.baseNameToken].Remove(this);
+            var list = dict[body.baseNameToken];
+            if(body.masterObject == null || body.gameObject == null) {
+                RemoveFrom(list);
                 return;
             }
 
-            var list = dict[body.baseNameToken];
             for(int i = 0; i < list.Count; i++) {
-                if(list[i] == this || list[i].isCombining) continue;
+                var other = list[i];
+                if(other == this || other.isCombining) continue;
 
                 // TODO: check speed, ensure quality
                 try {
-                    if(body.mainHurtBox.collider.bounds.Intersects(list[i].body.mainHurtBox.collider.bounds)) {
-                        isCombining = true;
-                        list[i].isCombining = true;
-                        Combine(list[i]);
+                    if(body.mainHurtBox.collider.bounds.Intersects(other.body.mainHurtBox.collider.bounds)) {
+                        Combine(other);
                     }
-                } catch(NullReferenceException e) {
-                    // FIXME: remove the offender?
-                    MoreArtifacts.Logger.LogInfo("bad collider bounds");
-                    MoreArtifacts.Logger.LogError(e.Message);
-                    MoreArtifacts.Logger.LogError(e.StackTrace);
+                } catch(NullReferenceException) {
+                    // remove the ones that threw the exception
                     try {
                         body.mainHurtBox.collider.bounds.Equals(null);
                     } catch(NullReferenceException) {
-                        MoreArtifacts.Logger.LogInfo($"bad local body bounds - isDestroyed: {body.masterObject == null}");
-                        list.Remove(this);
+                        RemoveFrom(list);
+                        return; // pls die
                     }
 
                     try {
-                        list[i].body.mainHurtBox.collider.bounds.Equals(null);
+                        other.body.mainHurtBox.collider.bounds.Equals(null);
                     } catch(NullReferenceException) {
-                        MoreArtifacts.Logger.LogInfo($"bad list body bounds - isDestroyed: {list[i].body.masterObject == null}");
-                        list.Remove(list[i]);
+                        RemoveFrom(list);
+                        i--;
                     }
                 }
 
@@ -144,6 +139,9 @@ namespace MoreArtifacts {
         }
 
         public void Combine(CongregateController other) {
+            isCombining = true;
+            other.isCombining = true;
+
             count += other.count;
             float scale = (CombineScale - 1) * count + 1;
 
@@ -187,16 +185,21 @@ namespace MoreArtifacts {
         }
 
         private void TrueDestroy() {
-            dict[body.baseNameToken].Remove(this);
-
             // make sure this monster is not part of a CombatSquad and remove it if it is
             foreach(var squad in squads) {
                 if(squad.ContainsMember(body.master)) {
                     R2API.Utils.Reflection.InvokeMethod(squad, "RemoveMember", body.master);
                 }
             }
+            
+            body.master.DestroyBody(); // who woulda thunk it, it actually exists
+            RemoveFrom(dict[body.baseNameToken]);
+        }
 
-            Destroy(gameObject);
+        private void RemoveFrom(List<CongregateController> list) {
+            this.enabled = false;
+            list.Remove(this);
+            Destroy(this);
         }
     }
 

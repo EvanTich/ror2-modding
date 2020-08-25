@@ -13,3 +13,6 @@ Use a mod manager OR...
 4. Put the dll in the plugins folder of BepInEx in your Risk of Rain 2 install folder.
 
 Enjoy!
+
+### Issues?
+Please notify me of any issues you may have with the mod through the Risk of Rain 2 Discord (Ugff) or Github.
