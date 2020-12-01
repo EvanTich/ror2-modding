@@ -24,6 +24,8 @@ namespace MoreArtifacts {
         public void Awake() {
             Logger = base.Logger;
 
+            MoreArtifactsConfig.Init(Config);
+
             NetworkingAPI.RegisterMessageType<ScaleMessage>();
 
             congregateArtifact = new CongregateArtifact();

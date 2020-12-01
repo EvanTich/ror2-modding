@@ -29,7 +29,7 @@ namespace MoreArtifacts {
             get { return ConglomerateArtifact.Instance.ArtifactDef; }
         }
 
-        //private static string[] ignoreList; // maybe? :)
+        private static string[] ignoreList; // maybe? :)
 
         private static System.Collections.ObjectModel.ReadOnlyCollection<TeamComponent>[] teamsList;
         internal static Xoroshiro128Plus random;
@@ -37,6 +37,8 @@ namespace MoreArtifacts {
 
         public static void Init() {
             seen = new List<DamageInfo>();
+
+            ignoreList = MoreArtifactsConfig.IgnoreListArray;
 
             // loooong line
             // may as well get the actual array instead of using TeamComponent.GetTeamMembers 3 times
@@ -75,10 +77,11 @@ namespace MoreArtifacts {
         private static void JumbleDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
             if(!IsValid(self.body.teamComponent.teamIndex)) {
                 orig(self, damageInfo);
-            } else
-            //if(Array.IndexOf(ignoreList, self.body.baseNameToken) != -1) {
-            //    orig(self, damageInfo);
-            //} else 
+            } else 
+            // TODO: make this work correctly (i.e. think about it later)
+            // if(Array.IndexOf(ignoreList, self.body.baseNameToken) != -1) {
+            //     orig(self, damageInfo);
+            // } else 
             if(seen.Contains(damageInfo)) {
                 seen.Remove(damageInfo);
                 orig(self, damageInfo);
