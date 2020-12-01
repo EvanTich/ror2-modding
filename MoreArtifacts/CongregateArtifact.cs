@@ -108,6 +108,7 @@ namespace MoreArtifacts {
 
             var list = dict[body.baseNameToken];
             if(body.masterObject == null || body.gameObject == null) {
+                MoreArtifacts.Logger.LogWarning("Body does not have master object or body does not have game object");
                 RemoveFrom(list);
                 return;
             }
@@ -126,6 +127,7 @@ namespace MoreArtifacts {
                     try {
                         body.mainHurtBox.collider.bounds.Equals(null);
                     } catch(NullReferenceException) {
+                        MoreArtifacts.Logger.LogWarning("Null reference: Removing this offending body");
                         RemoveFrom(list);
                         return; // pls die
                     }
@@ -133,7 +135,8 @@ namespace MoreArtifacts {
                     try {
                         other.body.mainHurtBox.collider.bounds.Equals(null);
                     } catch(NullReferenceException) {
-                        RemoveFrom(list);
+                        MoreArtifacts.Logger.LogWarning("Null reference: Removing other offending body");
+                        other.RemoveFrom(list); // how to prevent an infinite loop: remove the element you actually wanted to
                         i--;
                     }
                 }
@@ -152,6 +155,7 @@ namespace MoreArtifacts {
 
             if(body.inventory != null) {
                 // Irradiant Pearls are nice because they give 10% more of everything
+                // TODO: do it manually
                 body.inventory.ResetItem(ItemIndex.ShinyPearl);
                 int num = (count * PearlsPerCount - PearlsPerCount) * (body.isBoss || body.isChampion ? 2 : 1);
                 body.inventory.GiveItem(ItemIndex.ShinyPearl, num);

@@ -77,6 +77,9 @@ namespace MoreArtifacts {
         public static Sprite CreateSprite(byte[] resourceBytes, Color fallbackColor) {
             // Create a temporary texture, then load the texture onto it.
             var tex = new Texture2D(32, 32, TextureFormat.RGBA32, false);
+
+            tex.filterMode = FilterMode.Bilinear; // ah, right.
+
             try {
                 if(resourceBytes == null) {
                     FillTexture(tex, fallbackColor);
