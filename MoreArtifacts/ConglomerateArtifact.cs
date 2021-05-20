@@ -12,6 +12,7 @@ namespace MoreArtifacts {
     public class ConglomerateArtifact : NewArtifact<ConglomerateArtifact> {
 
         public override string Name => "Artifact of the Conglomerate";
+        public override string NameToken => "CONGLOMERATE";
         public override string Description => "A random character on the same team will take damage instead of the one that is damaged.";
         public override Sprite IconSelectedSprite => CreateSprite(Properties.Resources.conglomerate_selected, Color.magenta);
         public override Sprite IconDeselectedSprite => CreateSprite(Properties.Resources.conglomerate_deselected, Color.gray);
@@ -29,7 +30,7 @@ namespace MoreArtifacts {
             get { return ConglomerateArtifact.Instance.ArtifactDef; }
         }
 
-        private static string[] ignoreList; // maybe? :)
+        private static List<string> ignoreList;
 
         private static System.Collections.ObjectModel.ReadOnlyCollection<TeamComponent>[] teamsList;
         internal static Xoroshiro128Plus random;
@@ -38,12 +39,10 @@ namespace MoreArtifacts {
         public static void Init() {
             seen = new List<DamageInfo>();
 
-            ignoreList = MoreArtifactsConfig.IgnoreListArray;
+            ignoreList = MoreArtifactsConfig.IgnoreList;
 
-            // loooong line
             // may as well get the actual array instead of using TeamComponent.GetTeamMembers 3 times
-            teamsList = R2API.Utils.Reflection
-                .GetFieldValue<System.Collections.ObjectModel.ReadOnlyCollection<TeamComponent>[]>(typeof(TeamComponent), "readonlyTeamsList");
+            teamsList = TeamComponent.readonlyTeamsList;
 
             RunArtifactManager.onArtifactEnabledGlobal += OnArtifactEnabled;
             RunArtifactManager.onArtifactDisabledGlobal += OnArtifactDisabled;
@@ -75,14 +74,10 @@ namespace MoreArtifacts {
         }
 
         private static void JumbleDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
-            if(!IsValid(self.body.teamComponent.teamIndex)) {
+            if(!IsValid(self.body.teamComponent.teamIndex)
+                || ignoreList.Contains(self.body.baseNameToken)) {
                 orig(self, damageInfo);
-            } else 
-            // TODO: make this work correctly (i.e. think about it later)
-            // if(Array.IndexOf(ignoreList, self.body.baseNameToken) != -1) {
-            //     orig(self, damageInfo);
-            // } else 
-            if(seen.Contains(damageInfo)) {
+            } else if(seen.Contains(damageInfo)) {
                 seen.Remove(damageInfo);
                 orig(self, damageInfo);
             } else {

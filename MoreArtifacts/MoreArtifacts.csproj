@@ -88,6 +88,7 @@
     <Compile Include="ConglomerateArtifact.cs" />
     <Compile Include="CongregateArtifact.cs" />
     <Compile Include="MoreArtifacts.cs" />
+    <Compile Include="MoreArtifactsConfig.cs" />
     <Compile Include="NewArtifact.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

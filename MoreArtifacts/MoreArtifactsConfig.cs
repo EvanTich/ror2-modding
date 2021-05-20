@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using RoR2;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MoreArtifacts {
@@ -10,14 +11,17 @@ namespace MoreArtifacts {
         // Conglomerate Artifact
         public static ConfigEntry<string> IgnoreListEntry { get; set; }
 
-        public static string[] IgnoreListArray {
+        private static List<string> _ignoreList;
+        public static List<string> IgnoreList {
             get {
                 if(IgnoreListEntry == null) return null;
-
-                return IgnoreListEntry.Value
-                    .Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .Distinct().ToArray();
+                if(_ignoreList == null) {
+                    _ignoreList = IgnoreListEntry.Value
+                        .Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Distinct().ToList();
+                }
+                return _ignoreList;
             }
         }
 
@@ -37,7 +41,7 @@ namespace MoreArtifacts {
             // Conglomerate Artifact
             IgnoreListEntry = config.Bind(
                 "ConglomerateArtifact", "IgnoreList", "",
-                "The list of entity \"base name tokens\" to ignore when jumbling damage. Not used for now."
+                "A comma separated list of entity \"base name tokens\" to ignore when jumbling damage."
             );
 
             // Congregate Artifact
@@ -80,6 +84,8 @@ namespace MoreArtifacts {
                 "CongregateArtifact", "BossMultiplier", 2f,
                 "Stat multiplier for when bosses or \"champions\" merge."
             );
+
+            MoreArtifacts.Logger.LogInfo("Loaded Config");
         }
     }
 }

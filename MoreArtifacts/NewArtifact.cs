@@ -19,13 +19,21 @@ namespace MoreArtifacts {
         public abstract string Name { get; }
 
         /// <summary>
+        /// Name token of the artifact; backend value.
+        /// </summary>
+        public abstract string NameToken { get; }
+
+        /// <summary>
         /// In-game description of the artifact.
         /// </summary>
         public abstract string Description { get; }
 
+        public virtual UnlockableDef UnlockableDef { get; private set; } = null;
+
         /// <summary>
         /// In-game icon of the artifact when it is enabled.
         /// </summary>
+        /// <see cref="CreateSprite(byte[], Color)"/>
         public abstract Sprite IconSelectedSprite { get; }
 
         /// <summary>
@@ -34,11 +42,14 @@ namespace MoreArtifacts {
         /// <see cref="CreateSprite(byte[], Color)"/>
         public abstract Sprite IconDeselectedSprite { get; }
 
+        public virtual GameObject PickupModelPrefab { get; } = null;
+
         /// <summary>
         /// The resulting artifact definition from this class.
         /// </summary>
-        /// <see cref="CreateSprite(byte[], Color)"/>
         public ArtifactDef ArtifactDef { get; protected set; }
+
+        public bool ArtifactEnabled => RunArtifactManager.instance.IsArtifactEnabled(ArtifactDef);
 
         public NewArtifact() {
             if(Instance != null) {
@@ -51,19 +62,32 @@ namespace MoreArtifacts {
         }
 
         protected abstract void InitManager();
-        //public abstract void InitMission();
+        //public abstract void InitMission(); TODO
 
         /// <summary>
         /// Initializes the artifact def and adds it to the game's list of artifacts.
         /// </summary>
         protected void InitArtifact() {
+            R2API.LanguageAPI.Add($"ARTIFACT_{NameToken}_NAME", Name);
+            R2API.LanguageAPI.Add($"ARTIFACT_{NameToken}_DESCRIPTION", Description);
+
             ArtifactDef = ScriptableObject.CreateInstance<ArtifactDef>();
-            ArtifactDef.nameToken = Name;
-            ArtifactDef.descriptionToken = Description;
+            ArtifactDef.cachedName = $"ARTIFACT_{NameToken}";
+            ArtifactDef.nameToken = $"ARTIFACT_{NameToken}_NAME";
+            ArtifactDef.descriptionToken = $"ARTIFACT_{NameToken}_DESCRIPTION";
+
+            if(!UnlockableDef) {
+                UnlockableDef = ScriptableObject.CreateInstance<UnlockableDef>();
+                UnlockableDef.cachedName = Name;
+                UnlockableDef.nameToken = $"{NameToken} Unlock";
+            }
+
+            ArtifactDef.unlockableDef = UnlockableDef;
             ArtifactDef.smallIconSelectedSprite = IconSelectedSprite;
             ArtifactDef.smallIconDeselectedSprite = IconDeselectedSprite;
+            ArtifactDef.pickupModelPrefab = PickupModelPrefab;
 
-            ArtifactCatalog.getAdditionalEntries += list => list.Add(ArtifactDef);
+            R2API.ArtifactAPI.Add(ArtifactDef);
             MoreArtifacts.Logger.LogInfo($"Initialized Artifact: {Name}");
         }
 

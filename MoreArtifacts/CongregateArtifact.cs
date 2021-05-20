@@ -13,6 +13,7 @@ namespace MoreArtifacts {
     public class CongregateArtifact : NewArtifact<CongregateArtifact> {
 
         public override string Name => "Artifact of the Congregate";
+        public override string NameToken => "CONGREGATE";
         public override string Description => "Monsters can combine to form larger, stronger monsters.";
         public override Sprite IconSelectedSprite => CreateSprite(Properties.Resources.congregate_selected, Color.magenta);
         public override Sprite IconDeselectedSprite => CreateSprite(Properties.Resources.congregate_deselected, Color.gray);
@@ -69,6 +70,8 @@ namespace MoreArtifacts {
 
         public static float CombineScale = 1.1f;
         public static int PearlsPerCount = 5;
+
+        private static readonly ItemIndex shinyPearl = ItemCatalog.FindItemIndex("ShinyPearl"); // FIXME: this isn't it, boss
 
         private static readonly List<CombatSquad> squads = InstanceTracker.GetInstancesList<CombatSquad>();
 
@@ -155,10 +158,10 @@ namespace MoreArtifacts {
 
             if(body.inventory != null) {
                 // Irradiant Pearls are nice because they give 10% more of everything
-                // TODO: do it manually
-                body.inventory.ResetItem(ItemIndex.ShinyPearl);
+                // TODO: do it manually (change the values in body directly)
+                body.inventory.ResetItem(shinyPearl);
                 int num = (count * PearlsPerCount - PearlsPerCount) * (body.isBoss || body.isChampion ? 2 : 1);
-                body.inventory.GiveItem(ItemIndex.ShinyPearl, num);
+                body.inventory.GiveItem(shinyPearl, num);
                 body.RecalculateStats();
 
                 // kill experience, gold gain, and health/shields
