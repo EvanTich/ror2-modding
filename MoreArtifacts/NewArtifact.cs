@@ -76,16 +76,22 @@ namespace MoreArtifacts {
             ArtifactDef.nameToken = $"ARTIFACT_{NameToken}_NAME";
             ArtifactDef.descriptionToken = $"ARTIFACT_{NameToken}_DESCRIPTION";
 
-            if(!UnlockableDef) {
-                UnlockableDef = ScriptableObject.CreateInstance<UnlockableDef>();
-                UnlockableDef.cachedName = Name;
-                UnlockableDef.nameToken = $"{NameToken} Unlock";
+            // FIXME: research how unlockable defs work
+            //if(!UnlockableDef) {
+            //    UnlockableDef = ScriptableObject.CreateInstance<UnlockableDef>();
+            //    UnlockableDef.cachedName = Name;
+            //    UnlockableDef.nameToken = $"{NameToken} Unlock";
+            //    UnlockableDef.hidden = false;
+            //}
+            if(UnlockableDef) {
+                ArtifactDef.unlockableDef = UnlockableDef;
             }
-
-            ArtifactDef.unlockableDef = UnlockableDef;
+            
             ArtifactDef.smallIconSelectedSprite = IconSelectedSprite;
             ArtifactDef.smallIconDeselectedSprite = IconDeselectedSprite;
-            ArtifactDef.pickupModelPrefab = PickupModelPrefab;
+            if(PickupModelPrefab) {
+                ArtifactDef.pickupModelPrefab = PickupModelPrefab;
+            }
 
             R2API.ArtifactAPI.Add(ArtifactDef);
             MoreArtifacts.Logger.LogInfo($"Initialized Artifact: {Name}");
