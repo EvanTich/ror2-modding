@@ -32,6 +32,18 @@ namespace MoreArtifacts {
         }
 
         public static void Init() {
+            // ease of use values
+            CongregateController.CombineScale           = MoreArtifactsConfig.CombineScaleEntry.Value;
+            CongregateController.HealthMultiplier       = 1 + MoreArtifactsConfig.HealthMultiplierEntry.Value;
+            CongregateController.CritMultiplier         = 1 + MoreArtifactsConfig.CritMultiplierEntry.Value;
+            CongregateController.AttackSpeedMultiplier  = 1 + MoreArtifactsConfig.AttackSpeedMultiplierEntry.Value;
+            CongregateController.MoveSpeedMultiplier    = 1 + MoreArtifactsConfig.MoveSpeedMultiplierEntry.Value;
+            CongregateController.ArmorMultiplier        = 1 + MoreArtifactsConfig.ArmorMultiplierEntry.Value;
+            CongregateController.DamageMultiplier       = 1 + MoreArtifactsConfig.DamageMultiplierEntry.Value;
+            CongregateController.RegenMultiplier        = 1 + MoreArtifactsConfig.RegenMultiplierEntry.Value;
+            CongregateController.BossMultiplier         = 1 + MoreArtifactsConfig.BossMultiplierEntry.Value;
+
+            // actual init
             RunArtifactManager.onArtifactEnabledGlobal += OnArtifactEnabled;
             RunArtifactManager.onArtifactDisabledGlobal += OnArtifactDisabled;
         }
@@ -68,19 +80,26 @@ namespace MoreArtifacts {
     /// </summary>
     public class CongregateController : NetworkBehaviour {
 
-        public static float CombineScale = 1.1f;
-        public static int PearlsPerCount = 5;
-
-        private static readonly ItemIndex shinyPearl = ItemCatalog.FindItemIndex("ShinyPearl"); // FIXME: this isn't it, boss
+        public static float CombineScale;
+        public static float HealthMultiplier;
+        public static float CritMultiplier;
+        public static float AttackSpeedMultiplier;
+        public static float MoveSpeedMultiplier;
+        public static float ArmorMultiplier;
+        public static float DamageMultiplier;
+        public static float RegenMultiplier;
+        public static float BossMultiplier;
 
         private static readonly List<CombatSquad> squads = InstanceTracker.GetInstancesList<CombatSquad>();
 
         private static readonly Dictionary<string, List<CongregateController>> dict = new Dictionary<string, List<CongregateController>>();
+        private static readonly Dictionary<string, Stats> baseStatDict = new Dictionary<string, Stats>();
 
         private CharacterBody body;
         private DeathRewards rewards;
         private Vector3 initialScale;
         private int count; // number of enemies currently combined into this controller
+        private Stats baseStats;
 
         private bool isCombining;
 
@@ -93,7 +112,20 @@ namespace MoreArtifacts {
             count = 1;
 
             if(!dict.ContainsKey(body.baseNameToken)) {
+                baseStats = new Stats {
+                    baseMaxHealth = body.baseMaxHealth,
+                    baseRegen = body.baseRegen,
+                    baseMoveSpeed = body.baseMoveSpeed,
+                    baseDamage = body.baseDamage,
+                    baseAttackSpeed = body.baseAttackSpeed,
+                    baseCrit = body.baseCrit,
+                    baseArmor = body.baseArmor
+                };
+
+                baseStatDict.Add(body.baseNameToken, baseStats);
                 dict.Add(body.baseNameToken, new List<CongregateController>());
+            } else {
+                baseStats = baseStatDict[body.baseNameToken]; // get a reference to another base stats class to prevent a large amount of memory use
             }
 
             dict[body.baseNameToken].Add(this);
@@ -126,18 +158,14 @@ namespace MoreArtifacts {
                         Combine(other);
                     }
                 } catch(NullReferenceException) {
-                    // remove the ones that threw the exception
-                    try {
-                        body.mainHurtBox.collider.bounds.Equals(null);
-                    } catch(NullReferenceException) {
+                    // remove the one that threw the exception
+                    if(body?.mainHurtBox?.collider?.bounds == null) {
                         MoreArtifacts.Logger.LogWarning("Null reference: Removing this offending body");
                         RemoveFrom(list);
                         return; // pls die
                     }
 
-                    try {
-                        other.body.mainHurtBox.collider.bounds.Equals(null);
-                    } catch(NullReferenceException) {
+                    if(other?.body?.mainHurtBox?.collider?.bounds == null) {
                         MoreArtifacts.Logger.LogWarning("Null reference: Removing other offending body");
                         other.RemoveFrom(list); // how to prevent an infinite loop: remove the element you actually wanted to
                         i--;
@@ -154,25 +182,49 @@ namespace MoreArtifacts {
             count += other.count;
             float scale = (CombineScale - 1) * count + 1;
 
-            SendScale(initialScale * scale);
+            // set stats, recalculate
+            body.baseMaxHealth = baseStats.baseMaxHealth * count * HealthMultiplier;
+            body.baseRegen = baseStats.baseRegen * count * RegenMultiplier;
+            body.baseMoveSpeed = baseStats.baseMoveSpeed * count * MoveSpeedMultiplier;
+            body.baseDamage = baseStats.baseDamage * count * DamageMultiplier;
+            body.baseAttackSpeed = baseStats.baseAttackSpeed * count * AttackSpeedMultiplier;
+            body.baseCrit = baseStats.baseCrit * count * CritMultiplier;
+            body.baseArmor = baseStats.baseArmor * count * ArmorMultiplier;
 
-            if(body.inventory != null) {
-                // Irradiant Pearls are nice because they give 10% more of everything
-                // TODO: do it manually (change the values in body directly)
-                body.inventory.ResetItem(shinyPearl);
-                int num = (count * PearlsPerCount - PearlsPerCount) * (body.isBoss || body.isChampion ? 2 : 1);
-                body.inventory.GiveItem(shinyPearl, num);
-                body.RecalculateStats();
-
-                // kill experience, gold gain, and health/shields
-                body.healthComponent.health =
-                    Mathf.Clamp(body.healthComponent.health + other.body.healthComponent.health, 0, body.maxHealth);
-                body.healthComponent.shield =
-                    Mathf.Clamp(body.healthComponent.shield + other.body.healthComponent.shield, 0, body.maxShield);
-
-                rewards.expReward += other.rewards.expReward;
-                rewards.goldReward += other.rewards.goldReward;
+            // if is a boss or champion
+            if(body.isBoss || body.isChampion) {
+                body.baseMaxHealth *= BossMultiplier;
+                body.baseRegen *= BossMultiplier;
+                body.baseMoveSpeed *= BossMultiplier;
+                body.baseDamage *= BossMultiplier;
+                body.baseAttackSpeed *= BossMultiplier;
+                body.baseCrit *= BossMultiplier;
+                body.baseArmor *= BossMultiplier;
             }
+
+            body.RecalculateStats();
+
+            // kill experience, gold gain, and health/shields
+            body.healthComponent.health =
+                Mathf.Clamp(body.healthComponent.health + other.body.healthComponent.health, 0, body.maxHealth);
+            body.healthComponent.shield =
+                Mathf.Clamp(body.healthComponent.shield + other.body.healthComponent.shield, 0, body.maxShield);
+
+            rewards.expReward += other.rewards.expReward;
+            rewards.goldReward += other.rewards.goldReward;
+
+            SendCombine(
+                initialScale * scale,
+                body.baseMaxHealth,
+                body.baseRegen,
+                body.baseMoveSpeed,
+                body.baseDamage,
+                body.baseAttackSpeed,
+                body.baseCrit,
+                body.baseArmor,
+                body.healthComponent.health,
+                body.healthComponent.shield
+            );
 
             // combine elite types
             foreach(var index in BuffCatalog.eliteBuffIndices) {
@@ -185,23 +237,48 @@ namespace MoreArtifacts {
             isCombining = false;
         }
 
-        void SendScale(Vector3 scale) {
+        void SendCombine(
+            Vector3 scale, 
+            float baseMaxHealth,
+            float baseRegen,
+            float baseMoveSpeed,
+            float baseDamage,
+            float baseAttackSpeed,
+            float baseCrit,
+            float baseArmor,
+            float health,
+            float shield
+        ) {
             // only send from the server
             if(!NetworkServer.active) {
                 return;
             }
 
-            new ScaleMessage { body = body, scale = scale }.Send(R2API.Networking.NetworkDestination.Clients);
+            // don't need to send over changed exp or gold because thats handled server-side anyways
+            new CombineMessage {
+                body = body,
+                scale = scale,
+                baseMaxHealth = baseMaxHealth,
+                baseRegen = baseRegen,
+                baseMoveSpeed = baseMoveSpeed,
+                baseDamage = baseDamage,
+                baseAttackSpeed = baseAttackSpeed,
+                baseCrit = baseCrit,
+                baseArmor = baseArmor,
+                health = health,
+                shield = shield
+            }.Send(R2API.Networking.NetworkDestination.Clients);
         }
 
         private void TrueDestroy() {
             // make sure this monster is not part of a CombatSquad and remove it if it is
             foreach(var squad in squads) {
                 if(squad.ContainsMember(body.master)) {
-                    R2API.Utils.Reflection.InvokeMethod(squad, "RemoveMember", body.master);
+                    squad.RemoveMember(body.master);
+                    break;
                 }
             }
-            
+
             body.master.DestroyBody(); // who woulda thunk it, it actually exists
             RemoveFrom(dict[body.baseNameToken]);
         }
@@ -213,23 +290,72 @@ namespace MoreArtifacts {
         }
     }
 
-    internal struct ScaleMessage : INetMessage {
+    internal class Stats {
+        internal float baseMaxHealth;
+        internal float baseRegen;
+        internal float baseMoveSpeed;
+        internal float baseDamage;
+        internal float baseAttackSpeed;
+        internal float baseCrit;
+        internal float baseArmor;
+    }
+
+    internal struct CombineMessage : INetMessage {
         internal CharacterBody body;
         internal Vector3 scale;
+        internal float baseMaxHealth;
+        internal float baseRegen;
+        internal float baseMoveSpeed;
+        internal float baseDamage;
+        internal float baseAttackSpeed;
+        internal float baseCrit;
+        internal float baseArmor;
+        internal float health;
+        internal float shield;
 
         public void OnReceived() {
             if(body != null && scale != null)
                 body.modelLocator.modelTransform.localScale = scale;
+
+            body.RecalculateStats();
+            body.baseMaxHealth   = baseMaxHealth;
+            body.baseRegen       = baseRegen;
+            body.baseMoveSpeed   = baseMoveSpeed;
+            body.baseDamage      = baseDamage;
+            body.baseAttackSpeed = baseAttackSpeed;
+            body.baseCrit        = baseCrit;
+            body.baseArmor       = baseArmor;
+
+            body.healthComponent.health = health;
+            body.healthComponent.shield = shield;
         }
 
         public void Serialize(NetworkWriter writer) {
             writer.Write(body.gameObject);
             writer.Write(scale);
+            writer.Write(baseMaxHealth);
+            writer.Write(baseRegen);
+            writer.Write(baseMoveSpeed);
+            writer.Write(baseDamage);
+            writer.Write(baseAttackSpeed);
+            writer.Write(baseCrit);
+            writer.Write(baseArmor);
+            writer.Write(health);
+            writer.Write(shield);
         }
 
         public void Deserialize(NetworkReader reader) {
             body = reader.ReadGameObject()?.GetComponent<CharacterBody>();
             scale = reader.ReadVector3();
+            baseMaxHealth = reader.ReadSingle();
+            baseRegen = reader.ReadSingle();
+            baseMoveSpeed = reader.ReadSingle();
+            baseDamage = reader.ReadSingle();
+            baseAttackSpeed = reader.ReadSingle();
+            baseCrit = reader.ReadSingle();
+            baseArmor = reader.ReadSingle();
+            health = reader.ReadSingle();
+            shield = reader.ReadSingle();
         }
     }
 }

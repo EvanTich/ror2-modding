@@ -33,8 +33,9 @@ namespace MoreArtifacts {
         public static ConfigEntry<float> ArmorMultiplierEntry { get; set; }
         public static ConfigEntry<float> DamageMultiplierEntry { get; set; }
         public static ConfigEntry<float> RegenMultiplierEntry { get; set; }
-
         public static ConfigEntry<float> BossMultiplierEntry { get; set; }
+
+        public static ConfigEntry<float> CombineScaleEntry { get; set; }
 
         public static void Init(ConfigFile config) {
 
@@ -81,8 +82,13 @@ namespace MoreArtifacts {
             );
 
             BossMultiplierEntry = config.Bind(
-                "CongregateArtifact", "BossMultiplier", 2f,
-                "Stat multiplier for when bosses or \"champions\" merge."
+                "CongregateArtifact", "BossMultiplier", 0.20f,
+                "Percent multiplier for when bosses or \"champions\" merge."
+            );
+
+            CombineScaleEntry = config.Bind(
+                "CongregateArtifact", "CombineScale", 1.1f,
+                "Scale multiplier for when monsters merge."
             );
 
             MoreArtifacts.Logger.LogInfo("Loaded Config");

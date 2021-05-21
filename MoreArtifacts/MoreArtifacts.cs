@@ -27,7 +27,7 @@ namespace MoreArtifacts {
 
             MoreArtifactsConfig.Init(Config);
 
-            NetworkingAPI.RegisterMessageType<ScaleMessage>();
+            NetworkingAPI.RegisterMessageType<CombineMessage>();
 
             congregateArtifact = new CongregateArtifact();
             wholeArtifact = new ConglomerateArtifact();
