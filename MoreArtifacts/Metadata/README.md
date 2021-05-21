@@ -22,6 +22,7 @@ Enjoy!
 Please notify me of any issues you may have with the mod through the Risk of Rain 2 Modding Discord (Ugff) or Github.
 
 ### Changelog
+- 1.2.5 Fixed some stuff and created a functioning config file
 - 1.2.4 Made better icons and fixed a crash that was most noticable in the Void Fields
 - 1.2.3 Added an [example artifact project](https://github.com/EvanTich/ror2-modding/tree/master/ExampleArtifact) to help others create some neat artifacts and better NewArtifact class
 - 1.2.2 Fixed bugs with CombatSquad interactions and general fixes
