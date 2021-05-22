@@ -85,6 +85,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfusionArtifact.cs" />
     <Compile Include="ConglomerateArtifact.cs" />
     <Compile Include="CongregateArtifact.cs" />
     <Compile Include="MoreArtifacts.cs" />
@@ -106,6 +107,8 @@
   <ItemGroup>
     <None Include="Assets\conglomerate_deselected.png" />
     <None Include="Assets\conglomerate_selected.png" />
+    <None Include="Assets\confusion_deselected.png" />
+    <None Include="Assets\confusion_selected.png" />
     <Content Include="Assets\congregate_deselected.png" />
     <Content Include="Assets\congregate_selected.png" />
   </ItemGroup>

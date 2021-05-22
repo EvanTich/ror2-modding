@@ -63,6 +63,26 @@ namespace MoreArtifacts.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] confusion_deselected {
+            get {
+                object obj = ResourceManager.GetObject("confusion_deselected", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] confusion_selected {
+            get {
+                object obj = ResourceManager.GetObject("confusion_selected", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] conglomerate_deselected {
             get {
                 object obj = ResourceManager.GetObject("conglomerate_deselected", resourceCulture);

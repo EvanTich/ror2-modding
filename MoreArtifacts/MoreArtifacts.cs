@@ -21,6 +21,7 @@ namespace MoreArtifacts {
 
         public static CongregateArtifact congregateArtifact;
         public static ConglomerateArtifact wholeArtifact;
+        public static ConfusionArtifact confusionArtifact;
 
         public void Awake() {
             Logger = base.Logger;
@@ -31,6 +32,7 @@ namespace MoreArtifacts {
 
             congregateArtifact = new CongregateArtifact();
             wholeArtifact = new ConglomerateArtifact();
+            confusionArtifact = new ConfusionArtifact();
         }
     }
 }

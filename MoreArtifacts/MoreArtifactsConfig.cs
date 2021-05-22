@@ -34,8 +34,11 @@ namespace MoreArtifacts {
         public static ConfigEntry<float> DamageMultiplierEntry { get; set; }
         public static ConfigEntry<float> RegenMultiplierEntry { get; set; }
         public static ConfigEntry<float> BossMultiplierEntry { get; set; }
-
         public static ConfigEntry<float> CombineScaleEntry { get; set; }
+
+        // Confusion Artifact
+        public static ConfigEntry<float> LowerRandomizeEntry { get; set; }
+        public static ConfigEntry<float> UpperRandomizeEntry { get; set; }
 
         public static void Init(ConfigFile config) {
 
@@ -89,6 +92,17 @@ namespace MoreArtifacts {
             CombineScaleEntry = config.Bind(
                 "CongregateArtifact", "CombineScale", 1.1f,
                 "Scale multiplier for when monsters merge."
+            );
+
+            // Confusion Artifact
+            LowerRandomizeEntry = config.Bind(
+                "ConfusionArtifact", "LowerBound", 0.10f,
+                "Lower bound for ranomizing damage."
+            );
+
+            UpperRandomizeEntry = config.Bind(
+                "ConfusionArtifact", "UpperBound", 2.00f,
+                "Upper bound for randomizing damage."
             );
 
             MoreArtifacts.Logger.LogInfo("Loaded Config");
