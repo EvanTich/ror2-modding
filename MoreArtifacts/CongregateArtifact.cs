@@ -159,13 +159,18 @@ namespace MoreArtifacts {
                     }
                 } catch(NullReferenceException) {
                     // remove the one that threw the exception
-                    if(body?.mainHurtBox?.collider?.bounds == null) {
+                    // man now I had to do more than just one simple check
+                    try {
+                        body.mainHurtBox.collider.bounds.Equals(null); // dummy call is back
+                    } catch(NullReferenceException) {
                         MoreArtifacts.Logger.LogWarning("Null reference: Removing this offending body");
                         RemoveFrom(list);
                         return; // pls die
                     }
 
-                    if(other?.body?.mainHurtBox?.collider?.bounds == null) {
+                    try {
+                        other.body.mainHurtBox.collider.bounds.Equals(null);
+                    } catch(NullReferenceException) {
                         MoreArtifacts.Logger.LogWarning("Null reference: Removing other offending body");
                         other.RemoveFrom(list); // how to prevent an infinite loop: remove the element you actually wanted to
                         i--;
