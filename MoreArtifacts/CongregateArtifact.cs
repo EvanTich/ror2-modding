@@ -161,7 +161,7 @@ namespace MoreArtifacts {
                     // remove the one that threw the exception
                     // man now I had to do more than just one simple check
                     try {
-                        body.mainHurtBox.collider.bounds.Equals(null); // dummy call is back
+                        body.mainHurtBox.collider.bounds.Equals(null); // dummy call is back and lookin better than ever
                     } catch(NullReferenceException) {
                         MoreArtifacts.Logger.LogWarning("Null reference: Removing this offending body");
                         RemoveFrom(list);
