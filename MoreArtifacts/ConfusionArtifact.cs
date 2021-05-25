@@ -10,7 +10,7 @@ namespace MoreArtifacts {
 
         public override string Name => "Artifact of Confusion";
         public override string NameToken => "CONFUSION";
-        public override string Description => "All damage is randomized from 10% to 200%.";
+        public override string Description => "All damage is randomized, even to the point of healing instead of hurting.";
         public override Sprite IconSelectedSprite => CreateSprite(Properties.Resources.confusion_selected, Color.magenta);
         public override Sprite IconDeselectedSprite => CreateSprite(Properties.Resources.confusion_deselected, Color.gray);
 

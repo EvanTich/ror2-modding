@@ -61,7 +61,9 @@ namespace MoreArtifacts {
                             };
 
                             return weight;
-                        }).ToList();
+                        }).OrderBy(x => x.end).ToList();
+
+                    _confusionRangesList.ForEach(x => MoreArtifacts.Logger.LogInfo($"{x.min}-{x.max}:{x.end}"));
                 }
                 return _confusionRangesList;
             }
@@ -124,9 +126,9 @@ namespace MoreArtifacts {
             // Confusion Artifact
             // thanks, bell curve :)
             ConfusionRangesEntry = config.Bind(
-                "ConfusionArtifact", "ConfusionRanges", 
-                "~4-~2:0.001; ~2-0:0.023; 0-2:0.159; 2-4:0.841; 4-6:0.977; 6-8:0.999; 8-10:1",
-                "Ranges for the randomization, first group (before colon) states the min/max randomization and the second group is the percentage that the specified randomization is given. Default percentages are based on standard normal distribution on a bell curve."
+                "ConfusionArtifact", "ConfusionRanges",
+                "~10-~4:0.03; ~2-0:0.25; 0-2:0.97; 4-10:1",
+                "Ranges for the randomization, first group (before colon) states the min/max randomization and the second group is the percentage upper bound that the specified randomization is given."
             );
 
             MoreArtifacts.Logger.LogInfo("Loaded Config");
