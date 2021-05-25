@@ -37,8 +37,35 @@ namespace MoreArtifacts {
         public static ConfigEntry<float> CombineScaleEntry { get; set; }
 
         // Confusion Artifact
-        public static ConfigEntry<float> LowerRandomizeEntry { get; set; }
-        public static ConfigEntry<float> UpperRandomizeEntry { get; set; }
+        public static ConfigEntry<string> ConfusionRangesEntry { get; set; }
+
+        private static List<ConfusionWeight> _confusionRangesList;
+        public static List<ConfusionWeight> ConfusionRangesList {
+            get {
+                if(ConfusionRangesEntry == null) return null;
+                if(_confusionRangesList == null) {
+                    _confusionRangesList = ConfusionRangesEntry.Value
+                        .Split(';')
+                        .Select(x => {
+                            var g = x.Trim().Split(':');
+
+                            var range = g[0].Split('-')
+                                .Select(y => float.Parse(y.Trim().Replace('~', '-')))
+                                .ToArray();
+                            var perc = float.Parse(g[1].Trim());
+
+                            ConfusionWeight weight = new ConfusionWeight {
+                                min = range[0],
+                                max = range[1],
+                                end = perc
+                            };
+
+                            return weight;
+                        }).ToList();
+                }
+                return _confusionRangesList;
+            }
+        }
 
         public static void Init(ConfigFile config) {
 
@@ -95,14 +122,11 @@ namespace MoreArtifacts {
             );
 
             // Confusion Artifact
-            LowerRandomizeEntry = config.Bind(
-                "ConfusionArtifact", "LowerBound", 0.10f,
-                "Lower bound for ranomizing damage."
-            );
-
-            UpperRandomizeEntry = config.Bind(
-                "ConfusionArtifact", "UpperBound", 2.00f,
-                "Upper bound for randomizing damage."
+            // thanks, bell curve :)
+            ConfusionRangesEntry = config.Bind(
+                "ConfusionArtifact", "ConfusionRanges", 
+                "~4-~2:0.001; ~2-0:0.023; 0-2:0.159; 2-4:0.841; 4-6:0.977; 6-8:0.999; 8-10:1",
+                "Ranges for the randomization, first group (before colon) states the min/max randomization and the second group is the percentage that the specified randomization is given. Default percentages are based on standard normal distribution on a bell curve."
             );
 
             MoreArtifacts.Logger.LogInfo("Loaded Config");

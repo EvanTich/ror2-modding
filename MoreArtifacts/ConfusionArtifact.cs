@@ -24,14 +24,12 @@ namespace MoreArtifacts {
             get { return ConfusionArtifact.Instance.ArtifactDef; }
         }
 
-        private static float MinRandom;
-        private static float MaxRandom;
+        private static List<ConfusionWeight> Weights;
 
         internal static Xoroshiro128Plus random;
 
         public static void Init() {
-            MinRandom = MoreArtifactsConfig.LowerRandomizeEntry.Value;
-            MaxRandom = MoreArtifactsConfig.UpperRandomizeEntry.Value;
+            Weights = MoreArtifactsConfig.ConfusionRangesList;
 
             RunArtifactManager.onArtifactEnabledGlobal += OnArtifactEnabled;
             RunArtifactManager.onArtifactDisabledGlobal += OnArtifactDisabled;
@@ -58,12 +56,34 @@ namespace MoreArtifacts {
         }
 
         private static void RandomizeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
-            damageInfo.damage *= random.RangeFloat(MinRandom, MaxRandom);
-            orig(self, damageInfo);
+            float rand = RandomFloat();
+            if(rand < 0) {
+                // heal instead
+                self.Heal(-rand * damageInfo.damage, default);
+            } else {
+                damageInfo.damage = (float) Math.Ceiling(damageInfo.damage * rand);
+                orig(self, damageInfo);
+            }
+        }
+
+        private static float RandomFloat() {
+            float p = random.nextNormalizedFloat;
+            foreach(var w in Weights) {
+                if(p > w.end)
+                    continue;
+                return random.RangeFloat(w.min, w.max);
+            }
+            return 1f;
         }
 
         private static void SetRandom(Run run) {
             random = new Xoroshiro128Plus(run.runRNG.nextUlong);
         }
+    }
+
+    public struct ConfusionWeight {
+        public float min; // minimum number
+        public float max; // maximum number
+        public float end; // end of the range [0,1]
     }
 }
