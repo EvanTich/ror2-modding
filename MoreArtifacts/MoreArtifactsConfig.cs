@@ -62,8 +62,6 @@ namespace MoreArtifacts {
 
                             return weight;
                         }).OrderBy(x => x.end).ToList();
-
-                    _confusionRangesList.ForEach(x => MoreArtifacts.Logger.LogInfo($"{x.min}-{x.max}:{x.end}"));
                 }
                 return _confusionRangesList;
             }
