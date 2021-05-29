@@ -4,6 +4,8 @@ dnSpy
 *.zip
 tools
 
+MoreArtifacts/Metadata/MoreArtifacts.dll
+
 # easy to use shortcuts :)
 *.lnk
 
