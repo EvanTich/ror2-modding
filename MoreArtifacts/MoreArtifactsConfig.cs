@@ -50,9 +50,9 @@ namespace MoreArtifacts {
                             var g = x.Trim().Split(':');
 
                             var range = g[0].Split('-')
-                                .Select(y => float.Parse(y.Trim().Replace('~', '-')))
+                                .Select(y => float.Parse(y.Trim().Replace('~', '-'), System.Globalization.NumberFormatInfo.InvariantInfo))
                                 .ToArray();
-                            var perc = float.Parse(g[1].Trim());
+                            var perc = float.Parse(g[1].Trim(), System.Globalization.NumberFormatInfo.InvariantInfo);
 
                             ConfusionWeight weight = new ConfusionWeight {
                                 min = range[0],
@@ -122,7 +122,6 @@ namespace MoreArtifacts {
             );
 
             // Confusion Artifact
-            // thanks, bell curve :)
             ConfusionRangesEntry = config.Bind(
                 "ConfusionArtifact", "ConfusionRanges",
                 "~10-~4:0.03; ~2-0:0.25; 0-2:0.97; 4-10:1",
